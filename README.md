@@ -10,6 +10,8 @@ Copy the `HotCompiler` folder from the archive and paste it inside your `BepInEx
 
 Copy the `HotCompilerNamespace` folder to your BepInEx Plugin source project.
 
+Your BepInEx Plugin source project should contains a reference to `<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />`
+
 Make sure the path [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L19) is right and point somewhere inside your BepInEx Plugin source project.
 
 Inside your `BaseUnityPlugin` class, call `HotCompiler.CompileIt()`, you can check [an actual example here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/ExampleMain.cs).
