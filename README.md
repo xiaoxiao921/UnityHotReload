@@ -10,7 +10,17 @@ Copy the `HotCompiler` folder from the archive and paste it inside your `BepInEx
 
 Copy the `HotCompilerNamespace` folder to your BepInEx Plugin source project.
 
-Your BepInEx Plugin source project should contains a reference to `<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />`
+Your BepInEx Plugin source project should contains a reference to
+
+```xml
+<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+```
+
+You may need to hard reference a particular version of Mono.Cecil also if you get type conflicts at runtime after calling `CompileIt`
+
+```xml
+<PackageReference Include="Mono.Cecil" Version="0.11.4.0" />
+```
 
 Make sure the path [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L19) is right and point somewhere inside your BepInEx Plugin source project.
 
