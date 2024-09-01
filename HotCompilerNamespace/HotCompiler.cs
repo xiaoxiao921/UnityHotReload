@@ -54,7 +54,12 @@ return;
             CSharpCompilation comp = CSharpCompilation.Create(Path.GetRandomFileName())
                 .WithOptions(compilationOptions).
                 AddReferences(AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.IsDynamic && !string.IsNullOrWhiteSpace(a.Location))
+                .Where(a =>
+                    !a.IsDynamic &&
+                    !string.IsNullOrWhiteSpace(a.Location) &&
+                    // Fix an edge case where Mono.Cecil assembly Opcodes type may conflict with the one from Unity.Cecil
+                    // Change this whenever you get similar conflicts.
+                    !a.FullName.Contains("Unity.Cecil"))
                 .Select(a => MetadataReference.CreateFromFile(a.Location)))
                 .AddSyntaxTrees(tree);
 
