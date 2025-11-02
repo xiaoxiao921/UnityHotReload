@@ -22,7 +22,9 @@ You may need to hard reference a particular version of Mono.Cecil also if you ge
 <PackageReference Include="Mono.Cecil" Version="0.11.4.0" />
 ```
 
-Make sure the path [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L19) is right and point somewhere inside your BepInEx Plugin source project.
+Make sure the path [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L18) is right and point somewhere inside your BepInEx Plugin source project.
+
+The passed c# file path also need to contain the entrypoint, it needs to be called `HotReloadEntryPoint`, you can change the name of the method [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L33)
 
 Inside your `BaseUnityPlugin` class, call `HotCompiler.CompileIt()`, you can check [an actual example here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/ExampleMain.cs).
 
