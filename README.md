@@ -5,7 +5,7 @@ Tool for hot reloading your code inside your BepInEx environment.
 ## Setup
 
 Your BepInEx plugin project needs a reference to `UnityHotReload.dll`.
-You can add this reference in several ways, one of them is to download the latest release from Thunderstore, extract the zip, and reference the DLL from there.
+You can add this reference in several ways, one of them is to download the latest release from Thunderstore (or GitHub), extract the zip, and reference the DLL from there.
 
 Once your plugin is built and running, you can trigger a hot reload right after recompiling your code in your IDE by calling:
 
