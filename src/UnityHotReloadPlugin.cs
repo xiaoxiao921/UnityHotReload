@@ -18,7 +18,9 @@ namespace UnityHotReloadNS
         {
             Log.Init(Logger);
 
+#if DEBUG
             ReloadCode();
+#endif
         }
 
 #if DEBUG

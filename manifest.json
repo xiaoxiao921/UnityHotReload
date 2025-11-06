@@ -1,6 +1,6 @@
 {
   "name": "UnityHotReload",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/xiaoxiao921/UnityHotReload",
   "description": "Tool for hot reloading your code inside your BepInEx environment.",
   "dependencies": [
