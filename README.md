@@ -4,32 +4,26 @@ Tool for hot reloading your code inside your BepInEx environment.
 
 ## Setup
 
-Download `HotCompiler_netstandard20.7z` located in this repo.
+Your BepInEx plugin project needs a reference to `UnityHotReload.dll`.
+You can add this reference in several ways, one of them is to download the latest release from Thunderstore, extract the zip, and reference the DLL from there.
 
-Copy the `HotCompiler` folder from the archive and paste it inside your `BepInEx/plugins` folder.
+Once your plugin is built and running, you can trigger a hot reload right after recompiling your code in your IDE by calling:
 
-Copy the `HotCompilerNamespace` folder to your BepInEx Plugin source project.
-
-Your BepInEx Plugin source project should contains a reference to
-
-```xml
-<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+```csharp
+void Update()
+{
+    if (Input.GetKeyUp(KeyCode.F2))
+    {
+        UnityHotReload.LoadNewAssemblyVersion(
+            typeof(ExamplePlugin).Assembly, // The currently loaded assembly to replace.
+            "C:/dev/MyPlugin/MyPlugin.dll"  // The path to the newly compiled DLL.
+        );
+    }
+}
 ```
 
-You may need to hard reference a particular version of Mono.Cecil also if you get type conflicts at runtime after calling `CompileIt`
+## Limitations
 
-```xml
-<PackageReference Include="Mono.Cecil" Version="0.11.4.0" />
-```
+Treat all types (classes, structs, etc.) as having a fixed set of fields. You should not add, remove, or change fields, or convert fields to properties (and vice versa). This limitation exists because UnityHotReload preserves the existing runtime state by redirecting all active references to the original type definitions.
 
-Make sure the path [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L18) is right and point somewhere inside your BepInEx Plugin source project.
-
-The passed c# file path also need to contain the entrypoint, it needs to be called `HotReloadEntryPoint`, you can change the name of the method [here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotCompiler.cs#L33)
-
-Inside your `BaseUnityPlugin` class, call `HotCompiler.CompileIt()`, you can check [an actual example here](https://github.com/xiaoxiao921/UnityHotReload/blob/main/ExampleMain.cs).
-
-## Use Case
-
-This can be very useful for doing extremely rapid changes for about any gameplay logic you might think of.
-
-A good example is editing any part of a [State from RoR2](https://github.com/xiaoxiao921/UnityHotReload/blob/main/HotCompilerNamespace/HotReloadMain.cs), you can also do this with the methods of your own mod, that are sitting in the same source project!
+You can freely modify method bodies, add or remove methods, reorganize code, add whole new classes or structs, but the structure and identity of existing fields themselves must remain consistent.
