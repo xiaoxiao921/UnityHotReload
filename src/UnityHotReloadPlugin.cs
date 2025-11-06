@@ -12,11 +12,13 @@ namespace UnityHotReloadNS
         public const string PluginGUID = PluginAuthor + "." + PluginName;
         public const string PluginAuthor = "iDeathHD";
         public const string PluginName = "UnityHotReload";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         public void Awake()
         {
             Log.Init(Logger);
+
+            ReloadCode();
         }
 
 #if DEBUG
@@ -40,6 +42,7 @@ namespace UnityHotReloadNS
             //Log.Warning("Data3: " + Data4);
 
             NewMethodTest3();
+            NewMethodTest3(4);
         }
 
         private static void NewMethodTest()
@@ -49,13 +52,23 @@ namespace UnityHotReloadNS
 
         private static void NewMethodTest3()
         {
-            Log.Info("hello from NewMethodTest!4");
+            Log.Info("hello from NewMethodTest3 no bool");
+        }
+
+        private static void NewMethodTest3(bool yea)
+        {
+            Log.Info("hello from NewMethodTest3 with bool");
+        }
+
+        private static void NewMethodTest3(int bla)
+        {
+            Log.Info("hello from NewMethodTest3 with int");
         }
 
         private void ReloadCode()
         {
             UnityHotReload.LoadNewAssemblyVersion(typeof(UnityHotReloadPlugin).Assembly,
-                "C:\\Users\\Quentin\\Desktop\\banger\\UnityHotReload\\src\\bin\\Debug\\netstandard2.0\\UnityHotReload.dll");
+                "C:\\Users\\Quentin\\source\\repos\\UnityHotReload\\src\\bin\\Debug\\netstandard2.0\\UnityHotReload.dll");
         }
 #endif
     }

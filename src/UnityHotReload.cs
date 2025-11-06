@@ -62,7 +62,8 @@ namespace UnityHotReloadNS
                 {
                     foreach (var method in type.GetMethods(allFlags))
                     {
-                        var originalMethod = originalAss.GetType(type.FullName)?.GetMethod(method.Name, allFlags);
+                        var originalType = originalAss.GetType(type.FullName);
+                        var originalMethod = GetMethodResolveAmbiguous(method, originalType);
                         if (originalMethod == null)
                         {
                             // We still need to fix up references for a new, never seen method,
@@ -101,6 +102,84 @@ namespace UnityHotReloadNS
                     }
                 }
             }
+        }
+
+        private static MethodInfo GetMethodResolveAmbiguous(MethodReference methodRef, Type originalType)
+        {
+            var res = originalType.GetMethods(allFlags).Where(m => m.Name == methodRef.Name).ToList();
+            if (res.Count == 1)
+                return res[0];
+            if (res.Count > 1)
+            {
+                foreach (var candidate in res)
+                {
+                    var params1 = candidate.GetParameters();
+                    var params2 = methodRef.Parameters;
+                    if (params1.Length != params2.Count)
+                        continue;
+                    var allMatch = true;
+                    for (var i = 0; i < params1.Length; i++)
+                    {
+                        if (params1[i].ParameterType.FullName != params2[i].ParameterType.FullName)
+                        {
+                            allMatch = false;
+                            break;
+                        }
+                    }
+                    if (allMatch)
+                    {
+                        Log.Debug($"Resolved ambiguous method: {originalType.FullName}.{methodRef.Name}");
+                        return candidate;
+                    }
+                }
+            }   
+            return null;
+        }
+
+        private static MethodInfo GetMethodResolveAmbiguous(MethodInfo method, Type originalType)
+        {
+            var res = originalType.GetMethods(allFlags).Where(m => m.Name == method.Name).ToList();
+
+            if (res.Count == 1)
+                return res[0];
+
+            if (res.Count > 1)
+            {
+                foreach (var candidate in res)
+                {
+                    var params1 = candidate.GetParameters();
+                    var params2 = method.GetParameters();
+
+                    if (params1.Length != params2.Length)
+                        continue;
+
+                    var allMatch = true;
+                    for (var i = 0; i < params1.Length; i++)
+                    {
+                        // ToString cause of 
+                        //    Name: List`1
+                        //    Full Name: System.Collections.Generic.List`1[[System.String, mscorlib, Version=4
+                        //    .0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
+                        //    ToString:  System.Collections.Generic.List`1[System.String]
+                        //    Assembly Qualified Name: System.Collections.Generic.List`1[[System.String, mscor
+                        //    lib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorl
+                        //    ib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+                        if (params1[i].ParameterType.ToString() != params2[i].ParameterType.ToString())
+                        {
+                            allMatch = false;
+                            break;
+                        }
+                    }
+
+                    if (allMatch)
+                    {
+                        Log.Debug($"Resolved ambiguous method: {originalType.FullName}.{method.Name}");
+                        return candidate;
+                    }
+                }
+            }   
+
+            return null;
         }
 
         private static IEnumerable<Type> GetTypesSafe(Assembly ass)
@@ -186,11 +265,14 @@ namespace UnityHotReloadNS
                     if (!OriginalAssMethodRefs.ContainsKey(methodRef.FullName))
                     {
                         var originalType = OriginalAss.GetType(methodRef.DeclaringType.FullName);
-                        var originalMethod = originalType?.GetMethod(methodRef.Name, allFlags);
-                        if (originalMethod != null)
+                        if (originalType != null)
                         {
-                            Log.Debug($"Adding missing method ref: {methodRef.FullName} / {il.Method.Module.Name}");
-                            OriginalAssMethodRefs.Add(methodRef.FullName, il.Import(originalMethod));
+                            var originalMethod = GetMethodResolveAmbiguous(methodRef, originalType);
+                            if (originalMethod != null)
+                            {
+                                Log.Debug($"Adding missing method ref: {methodRef.FullName} / {il.Method.Module.Name}");
+                                OriginalAssMethodRefs.Add(methodRef.FullName, il.Import(originalMethod));
+                            }
                         }
                     }
 
