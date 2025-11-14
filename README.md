@@ -7,6 +7,8 @@ Tool for hot reloading your code inside your BepInEx environment.
 Your BepInEx plugin project needs a reference to `UnityHotReload.dll`.
 You can add this reference in several ways, one of them is to download the latest release from Thunderstore (or GitHub), extract the zip, and reference the DLL from there.
 
+The GitHub release tab ships with a netstandard2.0 release, if your target game mono backend is using net framework instead, just compile to that by changing the .csproj with TargetFramework net45 (or lower if net45 is too high)
+
 Once your plugin is built and running, you can trigger a hot reload right after recompiling your code in your IDE by calling:
 
 ```csharp
