@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using BepInEx;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 
@@ -49,11 +50,16 @@ namespace UnityHotReloadNS
                 dll.Name.Name = $"{originalAss.GetName().Name}_HotReload_{++CompilationCount}";
                 Assembly newAss;
 
-                using (var ms = new MemoryStream())
+                using var assStream = new MemoryStream();
+                using var symbolStream = new MemoryStream();
+                dll.Write(assStream, new WriterParameters
                 {
-                    dll.Write(ms);
-                    newAss = Assembly.Load(ms.ToArray());
-                }
+                    WriteSymbols = true,
+                    SymbolStream = symbolStream,
+                    SymbolWriterProvider = new PortablePdbWriterProvider(),
+                });
+
+                newAss = Assembly.Load(assStream.ToArray(), assStream.ToArray());
 
                 Log.Debug($"originalAss: {originalAss.GetName().Name}");
                 Log.Debug($"newAss: {newAss.GetName().Name}");
@@ -81,17 +87,19 @@ namespace UnityHotReloadNS
 
                             if (originalMethod != method)
                             {
+                                // Redirect the old method to the new one version of that same method
+
                                 _activeILHooks.Add(new ILHook(originalMethod, il =>
                                 {
                                     var c = new ILCursor(il);
 
                                     for (var i = 0; i < il.Method.Parameters.Count; i++)
                                     {
-                                        c.Emit(Mono.Cecil.Cil.OpCodes.Ldarg, i);
+                                        c.Emit(OpCodes.Ldarg, i);
                                     }
 
-                                    c.Emit(Mono.Cecil.Cil.OpCodes.Call, method);
-                                    c.Emit(Mono.Cecil.Cil.OpCodes.Ret);
+                                    c.Emit(OpCodes.Call, method);
+                                    c.Emit(OpCodes.Ret);
                                 }));
                             }
                         }
